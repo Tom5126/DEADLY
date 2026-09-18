@@ -1,0 +1,1189 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>DEADLY - Quản lý Deadline</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f5f6fa;
+            color: #222;
+            transition: 0.3s;
+        }
+
+        /* ================= SIDEBAR ================= */
+
+        .sidebar {
+            width: 240px;
+            height: 100vh;
+            background: #111827;
+            color: white;
+            position: fixed;
+            left: 0;
+            top: 0;
+            padding: 25px 15px;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .slogan {
+            text-align: center;
+            font-size: 12px;
+            color: #9ca3af;
+            margin-bottom: 35px;
+        }
+
+        .menu {
+            list-style: none;
+        }
+
+        .menu li {
+            padding: 14px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .menu li:hover,
+        .menu li.active {
+            background: #374151;
+        }
+
+        /* ================= MAIN ================= */
+
+        .main {
+            margin-left: 240px;
+            padding: 30px;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .topbar h1 {
+            font-size: 28px;
+        }
+
+        .top-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            border: none;
+            cursor: pointer;
+            border-radius: 8px;
+            padding: 11px 16px;
+            font-weight: bold;
+        }
+
+        .add-btn {
+            background: #111827;
+            color: white;
+        }
+
+        .dark-btn {
+            background: #e5e7eb;
+        }
+
+        /* ================= CARDS ================= */
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            padding: 22px;
+            border-radius: 14px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        }
+
+        .card p {
+            color: #6b7280;
+            margin-bottom: 10px;
+        }
+
+        .card h2 {
+            font-size: 30px;
+        }
+
+        /* ================= DEADLINE ================= */
+
+        .section {
+            background: white;
+            padding: 25px;
+            border-radius: 14px;
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .deadline-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .deadline {
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 18px;
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .deadline-left {
+            flex: 1;
+        }
+
+        .deadline-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .subject {
+            color: #6b7280;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .deadline-time {
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+
+        .progress-container {
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background: #111827;
+            transition: 0.3s;
+        }
+
+        .deadline-right {
+            text-align: right;
+            min-width: 150px;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .low {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .medium {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .high {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .completed {
+            opacity: 0.5;
+        }
+
+        .deadline-actions {
+            margin-top: 10px;
+        }
+
+        .complete-btn {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .delete-btn {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* ================= SEARCH ================= */
+
+        .search-area {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .search-area input,
+        .search-area select {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            outline: none;
+        }
+
+        .search-area input {
+            flex: 1;
+        }
+
+        /* ================= MODAL ================= */
+
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .modal-content {
+            background: white;
+            width: 450px;
+            max-width: 90%;
+            padding: 30px;
+            border-radius: 15px;
+        }
+
+        .modal-content h2 {
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: bold;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .form-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .cancel {
+            background: #e5e7eb;
+        }
+
+        /* ================= DARK MODE ================= */
+
+        body.dark {
+            background: #0f172a;
+            color: white;
+        }
+
+        body.dark .card,
+        body.dark .section,
+        body.dark .modal-content {
+            background: #1e293b;
+            color: white;
+        }
+
+        body.dark .deadline {
+            border-color: #475569;
+        }
+
+        body.dark .subject,
+        body.dark .card p {
+            color: #94a3b8;
+        }
+
+        body.dark .progress-container {
+            background: #475569;
+        }
+
+        body.dark input,
+        body.dark select {
+            background: #334155;
+            color: white;
+            border-color: #475569;
+        }
+
+        /* ================= RESPONSIVE ================= */
+
+        @media (max-width: 900px) {
+
+            .sidebar {
+                width: 70px;
+            }
+
+            .logo {
+                font-size: 18px;
+            }
+
+            .slogan {
+                display: none;
+            }
+
+            .menu span {
+                display: none;
+            }
+
+            .main {
+                margin-left: 70px;
+            }
+
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+
+            .main {
+                padding: 15px;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .deadline {
+                flex-direction: column;
+            }
+
+            .deadline-right {
+                text-align: left;
+            }
+
+            .search-area {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- ================= SIDEBAR ================= -->
+
+<aside class="sidebar">
+
+    <div class="logo">
+        DEADLY
+    </div>
+
+    <div class="slogan">
+        Đừng để deadline nhắc mày trước.
+    </div>
+
+    <ul class="menu">
+
+        <li class="active">
+            🏠 <span>Dashboard</span>
+        </li>
+
+        <li>
+            📋 <span>Deadline</span>
+        </li>
+
+        <li>
+            📅 <span>Calendar</span>
+        </li>
+
+        <li>
+            📊 <span>Statistics</span>
+        </li>
+
+        <li>
+            ⚙️ <span>Settings</span>
+        </li>
+
+    </ul>
+
+</aside>
+
+
+<!-- ================= MAIN ================= -->
+
+<main class="main">
+
+    <div class="topbar">
+
+        <div>
+            <h1>Xin chào, Khánh 👋</h1>
+            <p>Hôm nay bạn có những deadline nào?</p>
+        </div>
+
+        <div class="top-actions">
+
+            <button class="dark-btn" onclick="toggleDarkMode()">
+                🌙
+            </button>
+
+            <button class="add-btn" onclick="openModal()">
+                + Thêm deadline
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================= STATISTICS ================= -->
+
+    <div class="stats">
+
+        <div class="card">
+            <p>Tổng deadline</p>
+            <h2 id="total">0</h2>
+        </div>
+
+        <div class="card">
+            <p>Sắp tới</p>
+            <h2 id="upcoming">0</h2>
+        </div>
+
+        <div class="card">
+            <p>Hoàn thành</p>
+            <h2 id="completed">0</h2>
+        </div>
+
+        <div class="card">
+            <p>Quá hạn</p>
+            <h2 id="overdue">0</h2>
+        </div>
+
+    </div>
+
+
+    <!-- ================= DEADLINE SECTION ================= -->
+
+    <div class="section">
+
+        <div class="section-title">
+
+            <h2>📋 Deadline của bạn</h2>
+
+        </div>
+
+
+        <!-- SEARCH -->
+
+        <div class="search-area">
+
+            <input
+                type="text"
+                id="search"
+                placeholder="🔍 Tìm kiếm deadline..."
+                oninput="renderDeadlines()"
+            >
+
+            <select id="filter" onchange="renderDeadlines()">
+
+                <option value="all">
+                    Tất cả
+                </option>
+
+                <option value="upcoming">
+                    Sắp tới
+                </option>
+
+                <option value="completed">
+                    Hoàn thành
+                </option>
+
+                <option value="overdue">
+                    Quá hạn
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <div id="deadlineList" class="deadline-list">
+
+        </div>
+
+    </div>
+
+</main>
+
+
+<!-- ================= MODAL ================= -->
+
+<div class="modal" id="modal">
+
+    <div class="modal-content">
+
+        <h2>➕ Thêm deadline</h2>
+
+        <div class="form-group">
+
+            <label>Tên công việc</label>
+
+            <input
+                type="text"
+                id="title"
+                placeholder="Ví dụ: Làm website"
+            >
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label>Môn học</label>
+
+            <input
+                type="text"
+                id="subject"
+                placeholder="Ví dụ: Thiết kế web"
+            >
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label>Deadline</label>
+
+            <input
+                type="datetime-local"
+                id="date"
+            >
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label>Mức độ ưu tiên</label>
+
+            <select id="priority">
+
+                <option value="low">
+                    Thấp
+                </option>
+
+                <option value="medium">
+                    Trung bình
+                </option>
+
+                <option value="high">
+                    Cao
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label>Tiến độ (%)</label>
+
+            <input
+                type="number"
+                id="progressInput"
+                min="0"
+                max="100"
+                value="0"
+            >
+
+        </div>
+
+
+        <div class="form-buttons">
+
+            <button
+                class="cancel"
+                onclick="closeModal()"
+            >
+                Hủy
+            </button>
+
+            <button
+                class="add-btn"
+                onclick="addDeadline()"
+            >
+                Thêm deadline
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    /* ================= DATA ================= */
+
+    let deadlines =
+        JSON.parse(localStorage.getItem("deadlines")) || [];
+
+
+    /* ================= SAVE ================= */
+
+    function saveData() {
+
+        localStorage.setItem(
+            "deadlines",
+            JSON.stringify(deadlines)
+        );
+
+    }
+
+
+    /* ================= MODAL ================= */
+
+    function openModal() {
+
+        document.getElementById("modal").style.display = "flex";
+
+    }
+
+
+    function closeModal() {
+
+        document.getElementById("modal").style.display = "none";
+
+    }
+
+
+    /* ================= ADD DEADLINE ================= */
+
+    function addDeadline() {
+
+        const title =
+            document.getElementById("title").value;
+
+        const subject =
+            document.getElementById("subject").value;
+
+        const date =
+            document.getElementById("date").value;
+
+        const priority =
+            document.getElementById("priority").value;
+
+        const progress =
+            Number(
+                document.getElementById("progressInput").value
+            );
+
+
+        if (!title || !date) {
+
+            alert("Vui lòng nhập tên và deadline!");
+
+            return;
+
+        }
+
+
+        const deadline = {
+
+            id: Date.now(),
+
+            title: title,
+
+            subject: subject,
+
+            date: date,
+
+            priority: priority,
+
+            progress: progress,
+
+            completed: false
+
+        };
+
+
+        deadlines.push(deadline);
+
+        saveData();
+
+        renderDeadlines();
+
+        closeModal();
+
+
+        document.getElementById("title").value = "";
+        document.getElementById("subject").value = "";
+        document.getElementById("date").value = "";
+        document.getElementById("progressInput").value = 0;
+
+    }
+
+
+    /* ================= CALCULATE TIME ================= */
+
+    function getTimeLeft(date) {
+
+        const now = new Date();
+
+        const deadline = new Date(date);
+
+        const difference =
+            deadline - now;
+
+
+        if (difference <= 0) {
+
+            return "Đã quá hạn";
+
+        }
+
+
+        const days =
+            Math.floor(
+                difference /
+                (1000 * 60 * 60 * 24)
+            );
+
+
+        const hours =
+            Math.floor(
+                (difference %
+                (1000 * 60 * 60 * 24))
+                /
+                (1000 * 60 * 60)
+            );
+
+
+        const minutes =
+            Math.floor(
+                (difference %
+                (1000 * 60 * 60))
+                /
+                (1000 * 60)
+            );
+
+
+        return `${days} ngày ${hours} giờ ${minutes} phút`;
+
+    }
+
+
+    /* ================= STATUS ================= */
+
+    function getStatus(deadline) {
+
+        if (deadline.completed) {
+
+            return "completed";
+
+        }
+
+
+        const now = new Date();
+
+        const date = new Date(deadline.date);
+
+        const difference =
+            date - now;
+
+
+        if (difference < 0) {
+
+            return "overdue";
+
+        }
+
+
+        return "upcoming";
+
+    }
+
+
+    /* ================= RENDER ================= */
+
+    function renderDeadlines() {
+
+        const list =
+            document.getElementById("deadlineList");
+
+
+        const search =
+            document
+            .getElementById("search")
+            .value
+            .toLowerCase();
+
+
+        const filter =
+            document
+            .getElementById("filter")
+            .value;
+
+
+        list.innerHTML = "";
+
+
+        const filtered =
+            deadlines.filter(deadline => {
+
+                const matchesSearch =
+                    deadline.title
+                    .toLowerCase()
+                    .includes(search);
+
+
+                const status =
+                    getStatus(deadline);
+
+
+                const matchesFilter =
+                    filter === "all" ||
+                    filter === status;
+
+
+                return matchesSearch &&
+                       matchesFilter;
+
+            });
+
+
+        if (filtered.length === 0) {
+
+            list.innerHTML =
+                "<p>Không có deadline nào.</p>";
+
+            updateStats();
+
+            return;
+
+        }
+
+
+        filtered.forEach(deadline => {
+
+            const div =
+                document.createElement("div");
+
+
+            div.className =
+                "deadline " +
+                (deadline.completed
+                    ? "completed"
+                    : "");
+
+
+            let priorityText;
+
+            if (deadline.priority === "high") {
+
+                priorityText = "Cao";
+
+            }
+            else if (deadline.priority === "medium") {
+
+                priorityText = "Trung bình";
+
+            }
+            else {
+
+                priorityText = "Thấp";
+
+            }
+
+
+            const date =
+                new Date(deadline.date)
+                .toLocaleString("vi-VN");
+
+
+            div.innerHTML = `
+
+                <div class="deadline-left">
+
+                    <div class="deadline-title">
+
+                        ${deadline.title}
+
+                    </div>
+
+                    <div class="subject">
+
+                        📚 ${deadline.subject || "Không có môn học"}
+
+                    </div>
+
+                    <div class="deadline-time">
+
+                        ⏰ ${getTimeLeft(deadline.date)}
+
+                    </div>
+
+                    <div class="subject">
+
+                        Deadline: ${date}
+
+                    </div>
+
+                    <div class="progress-container">
+
+                        <div
+                            class="progress"
+                            style="width:${deadline.progress}%"
+                        ></div>
+
+                    </div>
+
+                    <small>
+
+                        Tiến độ: ${deadline.progress}%
+
+                    </small>
+
+                </div>
+
+
+                <div class="deadline-right">
+
+                    <div class="status ${deadline.priority}">
+
+                        ${priorityText}
+
+                    </div>
+
+                    <div class="deadline-actions">
+
+                        ${
+                            !deadline.completed
+
+                            ?
+
+                            `<button
+                                class="complete-btn"
+                                onclick="completeDeadline(${deadline.id})"
+                            >
+                                ✓ Xong
+                            </button>`
+
+                            :
+
+                            `<button
+                                class="complete-btn"
+                                onclick="completeDeadline(${deadline.id})"
+                            >
+                                ↩ Mở lại
+                            </button>`
+                        }
+
+                        <button
+                            class="delete-btn"
+                            onclick="deleteDeadline(${deadline.id})"
+                        >
+                            🗑
+                        </button>
+
+                    </div>
+
+                </div>
+
+            `;
+
+
+            list.appendChild(div);
+
+        });
+
+
+        updateStats();
+
+    }
+
+
+    /* ================= COMPLETE ================= */
+
+    function completeDeadline(id) {
+
+        const deadline =
+            deadlines.find(
+                item => item.id === id
+            );
+
+
+        if (deadline) {
+
+            deadline.completed =
+                !deadline.completed;
+
+
+            if (deadline.completed) {
+
+                deadline.progress = 100;
+
+            }
+
+
+            saveData();
+
+            renderDeadlines();
+
+        }
+
+    }
+
+
+    /* ================= DELETE ================= */
+
+    function deleteDeadline(id) {
+
+        if (
+            confirm(
+                "Bạn có chắc muốn xóa deadline này?"
+            )
+        ) {
+
+            deadlines =
+                deadlines.filter(
+                    item => item.id !== id
+                );
+
+
+            saveData();
+
+            renderDeadlines();
+
+        }
+
+    }
+
+
+    /* ================= STATISTICS ================= */
+
+    function updateStats() {
+
+        const total =
+            deadlines.length;
+
+
+        const completed =
+            deadlines.filter(
+                item => item.completed
+            ).length;
+
+
+        const upcoming =
+            deadlines.filter(
+                item =>
+                    !item.completed &&
+                    new Date(item.date) > new Date()
+            ).length;
+
+
+        const overdue =
+            deadlines.filter(
+                item =>
+                    !item.completed &&
+                    new Date(item.date) < new Date()
+            ).length;
+
+
+        document.getElementById("total")
+            .textContent = total;
+
+
+        document.getElementById("completed")
+            .textContent = completed;
+
+
+        document.getElementById("upcoming")
+            .textContent = upcoming;
+
+
+        document.getElementById("overdue")
+            .textContent = overdue;
+
+    }
+
+
+    /* ================= DARK MODE ================= */
+
+    function toggleDarkMode() {
+
+        document.body.classList.toggle("dark");
+
+        localStorage.setItem(
+            "darkMode",
+            document.body.classList.contains("dark")
+        );
+
+    }
+
+
+    /* ================= LOAD DARK MODE ================= */
+
+    if (
+        localStorage.getItem("darkMode")
+        === "true"
+    ) {
+
+        document.body.classList.add("dark");
+
+    }
+
+
+    /* ================= REALTIME COUNTDOWN ================= */
+
+    setInterval(
+        renderDeadlines,
+        60000
+    );
+
+
+    /* ================= INITIALIZE ================= */
+
+    renderDeadlines();
+
+</script>
+
+</body>
+</html>
